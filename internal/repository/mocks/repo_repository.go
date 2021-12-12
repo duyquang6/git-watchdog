@@ -42,14 +42,16 @@ func (_m *RepoRepository) Delete(tx *gorm.DB, id uint) error {
 }
 
 // GetByID provides a mock function with given fields: tx, id
-func (_m *RepoRepository) GetByID(tx *gorm.DB, id uint) (model.Repository, error) {
+func (_m *RepoRepository) GetByID(tx *gorm.DB, id uint) (*model.Repository, error) {
 	ret := _m.Called(tx, id)
 
-	var r0 model.Repository
-	if rf, ok := ret.Get(0).(func(*gorm.DB, uint) model.Repository); ok {
+	var r0 *model.Repository
+	if rf, ok := ret.Get(0).(func(*gorm.DB, uint) *model.Repository); ok {
 		r0 = rf(tx, id)
 	} else {
-		r0 = ret.Get(0).(model.Repository)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Repository)
+		}
 	}
 
 	var r1 error

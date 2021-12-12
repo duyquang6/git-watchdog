@@ -10,7 +10,7 @@ type repositoryRepo struct{}
 // RepoRepository provide interface interact with Scan model
 type RepoRepository interface {
 	Create(tx *gorm.DB, data *model.Repository) error
-	GetByID(tx *gorm.DB, id uint) (model.Repository, error)
+	GetByID(tx *gorm.DB, id uint) (*model.Repository, error)
 	Update(tx *gorm.DB, data *model.Repository) error
 	Delete(tx *gorm.DB, id uint) error
 }
@@ -26,9 +26,9 @@ func (s *repositoryRepo) Create(tx *gorm.DB, data *model.Repository) error {
 }
 
 // GetByID repository
-func (s *repositoryRepo) GetByID(tx *gorm.DB, id uint) (model.Repository, error) {
+func (s *repositoryRepo) GetByID(tx *gorm.DB, id uint) (*model.Repository, error) {
 	var data model.Repository
-	return data, tx.First(&data, id).Error
+	return &data, tx.First(&data, id).Error
 }
 
 // Update repository

@@ -65,7 +65,7 @@ func (_m *ScanRepository) GetByID(tx *gorm.DB, id uint) (model.Scan, error) {
 }
 
 // List provides a mock function with given fields: tx, repoID, offset, limit
-func (_m *ScanRepository) List(tx *gorm.DB, repoID null.Uint, offset uint, limit uint) ([]model.Scan, error) {
+func (_m *ScanRepository) List(tx *gorm.DB, repoID null.Uint, offset uint, limit uint) ([]model.Scan, uint, error) {
 	ret := _m.Called(tx, repoID, offset, limit)
 
 	var r0 []model.Scan
@@ -77,14 +77,21 @@ func (_m *ScanRepository) List(tx *gorm.DB, repoID null.Uint, offset uint, limit
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(*gorm.DB, null.Uint, uint, uint) error); ok {
+	var r1 uint
+	if rf, ok := ret.Get(1).(func(*gorm.DB, null.Uint, uint, uint) uint); ok {
 		r1 = rf(tx, repoID, offset, limit)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(uint)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(*gorm.DB, null.Uint, uint, uint) error); ok {
+		r2 = rf(tx, repoID, offset, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // Update provides a mock function with given fields: tx, scan

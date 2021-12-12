@@ -120,8 +120,9 @@ func (s *repoSvc) Update(ctx context.Context, id uint, req dto.UpdateRepositoryR
 	repoModel := model.Repository{
 		Name:      req.Name,
 		URL:       req.URL,
-		BaseModel: model.BaseModel{ID: id, UpdatedAt: time.Now().UTC()},
+		BaseModel: model.BaseModel{ID: id},
 	}
+
 	err := s.repositoryRepo.Update(tx, &repoModel)
 	if err != nil {
 		if database.IsNotFound(err) {
@@ -175,7 +176,6 @@ func (s *repoSvc) IssueScanRepo(ctx context.Context, repoID uint) (*dto.IssueSca
 	)
 
 	scanModel := model.Scan{
-		BaseModel:    model.BaseModel{CreatedAt: time.Now()},
 		RepositoryID: repoID,
 		Status:       customtypes.QUEUED,
 		QueuedAt:     null.NewTime(time.Now()),
@@ -184,12 +184,14 @@ func (s *repoSvc) IssueScanRepo(ctx context.Context, repoID uint) (*dto.IssueSca
 	err := s.scanRepository.Create(tx, &scanModel)
 	defer s.dbFactory.Rollback(tx)
 	if err != nil {
+		logger.Error("cannot create scan task, error:", err)
 		return nil, exception.Wrap(exception.ErrInternalServer, err, "create scan failed")
 	}
 
 	msg := &scanpb.ScanTask{Id: int64(scanModel.ID)}
 	bytesData, err := proto.Marshal(msg)
 	if err != nil {
+		logger.Error("cannot marshal proto message, error:", err)
 		return nil, exception.Wrap(exception.ErrUnknownError, err, "buf bytes marshal failed")
 	}
 	s.dbFactory.Commit(tx)
@@ -222,13 +224,13 @@ func (s *repoSvc) IssueScanRepo(ctx context.Context, repoID uint) (*dto.IssueSca
 func (s *repoSvc) ListScan(ctx context.Context, repoID null.Uint, page, limit uint) (*dto.ListScanResponse, error) {
 	var (
 		tx       = s.dbFactory.GetDB()
-		function = "ListScanByRepoID"
+		function = "ListScan"
 		logger   = logging.FromContext(ctx).Named(fmt.Sprintf(repositoryServiceLoggingFmt, function))
 		err      error
 		scans    []model.Scan
 		offset   = (page - 1) * limit
 	)
-	scans, err = s.scanRepository.List(tx, repoID, offset, limit)
+	scans, count, err := s.scanRepository.List(tx, repoID, offset, limit)
 	if err != nil {
 		logger.Error("list scan failed, err:", err)
 		return nil, exception.Wrap(exception.ErrInternalServer, err, "list scan failed")
@@ -243,17 +245,25 @@ func (s *repoSvc) ListScan(ctx context.Context, repoID null.Uint, page, limit ui
 				Name: scan.Repository.Name,
 				URL:  scan.Repository.URL,
 			},
-			Status:     scan.Status.String(),
-			QueuedAt:   null.Uint{Uint: uint(scan.QueuedAt.Time.Unix()), Valid: scan.QueuedAt.Valid},
-			ScanningAt: null.Uint{Uint: uint(scan.ScanningAt.Time.Unix()), Valid: scan.ScanningAt.Valid},
-			FinishedAt: null.Uint{Uint: uint(scan.FinishedAt.Time.Unix()), Valid: scan.FinishedAt.Valid},
-			Findings:   scan.Findings,
-			Note:       scan.Note,
+			Status:   scan.Status.String(),
+			Findings: scan.Findings,
+			Note:     scan.Note,
+		}
+		if scan.QueuedAt.Valid {
+			resData[i].QueuedAt = null.NewUint(uint(scan.QueuedAt.Time.Unix()))
+		}
+		if scan.ScanningAt.Valid {
+			resData[i].ScanningAt = null.NewUint(uint(scan.ScanningAt.Time.Unix()))
+		}
+		if scan.FinishedAt.Valid {
+			resData[i].FinishedAt = null.NewUint(uint(scan.FinishedAt.Time.Unix()))
 		}
 	}
 
 	return &dto.ListScanResponse{
-		Meta: dto.Meta{Code: http.StatusOK, Message: "OK"},
+		Meta: dto.PaginationMeta{Meta: dto.Meta{
+			Code: http.StatusOK, Message: "OK",
+		}, Total: count},
 		Data: resData,
 	}, nil
 }

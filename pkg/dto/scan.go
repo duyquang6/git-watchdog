@@ -11,8 +11,8 @@ type IssueScanResponse struct {
 }
 
 type ListScanResponse struct {
-	Meta Meta   `json:"meta"`
-	Data []Scan `json:"data"`
+	Meta PaginationMeta `json:"meta"`
+	Data []Scan         `json:"data"`
 }
 
 type Scan struct {

@@ -13,7 +13,7 @@ type ScanRepository interface {
 	Create(tx *gorm.DB, scan *model.Scan) error
 	Update(tx *gorm.DB, scan *model.Scan) error
 	Delete(tx *gorm.DB, id uint) error
-	List(tx *gorm.DB, repoID null.Uint, offset, limit uint) ([]model.Scan, error)
+	List(tx *gorm.DB, repoID null.Uint, offset, limit uint) ([]model.Scan, uint, error)
 	GetByID(tx *gorm.DB, id uint) (model.Scan, error)
 }
 
@@ -38,13 +38,16 @@ func (s *scanRepo) Update(tx *gorm.DB, data *model.Scan) error {
 }
 
 // List get scans result with pagination support
-func (s *scanRepo) List(tx *gorm.DB, repoID null.Uint, offset, limit uint) ([]model.Scan, error) {
+func (s *scanRepo) List(tx *gorm.DB, repoID null.Uint, offset, limit uint) ([]model.Scan, uint, error) {
 	var scans []model.Scan
-	res := tx.Preload("Repository").Offset(int(offset)).Limit(int(limit))
+	count := int64(0)
+	res := tx.Preload("Repository").Count(&count)
 	if repoID.Valid {
-		res.Where("repository_id = ?", repoID.Uint)
+		res = res.Where("repository_id = ?", repoID.Uint)
 	}
-	return scans, res.Find(&scans).Error
+	res = res.Offset(int(offset)).Limit(int(limit))
+	err := res.Find(&scans).Error
+	return scans, uint(count), err
 }
 
 func (s *scanRepo) Delete(tx *gorm.DB, id uint) error {
