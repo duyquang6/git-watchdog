@@ -11,11 +11,7 @@ var (
 
 // Repository module (01) error codes definition.
 var (
-	ErrRepositoryNotFound = 4040101
-)
-
-// Wager module (02) error codes definition.
-var (
+	ErrRepositoryNotFound     = 4040101
 	ErrPublishToQueueFailed   = 5000201
 	ErrPaginationParamInvalid = 4000201
 )

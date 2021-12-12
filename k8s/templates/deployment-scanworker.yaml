@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "git-watchdog.fullname" . }}-scanworker
+  name: {{ include "git-watchdog.fullname" . }}
   labels:
     {{- include "git-watchdog.labels" . | nindent 4 }}
 spec:  
@@ -26,23 +26,12 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./scanworker"]
           envFrom:               
           - configMapRef:
               name: {{ include "git-watchdog.fullname" . }}
           - secretRef:
               name: {{ include "git-watchdog.fullname" . }}
-          ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /ping
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

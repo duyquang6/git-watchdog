@@ -22,7 +22,7 @@ type AppError struct {
 // AppErrorResponse describes return error response format.
 type AppErrorResponse struct {
 	Error string `json:"error"`
-	//Code  int    `json:"code"`
+	Code  int    `json:"code"`
 }
 
 // ErrorMeta is the metadata of AppError.
@@ -115,11 +115,12 @@ func (appErr AppError) ToAppErrorResponse() AppErrorResponse {
 			out[i] = fmt.Sprintf(validationErrorFmt, fe.Field(), _validator.MsgForTag(fe))
 		}
 		return AppErrorResponse{
-			strings.Join(out, "\n"),
+			Code:  appErr.Meta.Code,
+			Error: strings.Join(out, "\n"),
 		}
 	}
 	return AppErrorResponse{
-		//Code:  appErr.Meta.Code,
+		Code:  appErr.Meta.Code,
 		Error: appErr.AggregateMetaError().Meta.Message,
 	}
 }

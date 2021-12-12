@@ -1,0 +1,298 @@
+basePath: /api/v1
+definitions:
+  dto.CreateRepositoryRequest:
+    properties:
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - name
+    type: object
+  dto.CreateRepositoryResponse:
+    properties:
+      data:
+        properties:
+          id:
+            type: integer
+        type: object
+      meta:
+        $ref: '#/definitions/dto.Meta'
+    type: object
+  dto.DeleteRepositoryResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/dto.Meta'
+    type: object
+  dto.GetOneRepositoryResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.Repository'
+      meta:
+        $ref: '#/definitions/dto.Meta'
+    type: object
+  dto.IssueScanResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/dto.Meta'
+    type: object
+  dto.Meta:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
+  dto.Repository:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      url:
+        type: string
+    type: object
+  dto.UpdateRepositoryRequest:
+    properties:
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - name
+    type: object
+  dto.UpdateRepositoryResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/dto.Meta'
+    type: object
+  exception.AppErrorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+    type: object
+info:
+  contact:
+    email: nguyenduyquang06@gmail.com
+    name: Quang Nguyen
+    url: https://duyquang6.github.io
+  description: GitWatchdog API Spec
+  termsOfService: http://swagger.io/terms/
+  title: GitWatchdog API
+  version: "1.0"
+paths:
+  /repositories:
+    post:
+      consumes:
+      - application/json
+      description: create repository
+      parameters:
+      - description: CreateRepositoryRequest
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRepositoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CreateRepositoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+      summary: create repository
+      tags:
+      - repository
+  /repositories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete repo by id
+      parameters:
+      - description: Repository ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DeleteRepositoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+      summary: delete repository
+      tags:
+      - repository
+    get:
+      consumes:
+      - application/json
+      description: get repository by id
+      parameters:
+      - description: Repository ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetOneRepositoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+      summary: get one repo
+      tags:
+      - repository
+    put:
+      consumes:
+      - application/json
+      description: update repository
+      parameters:
+      - description: Repository ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: UpdateRepositoryRequest
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRepositoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UpdateRepositoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+      summary: update repository
+      tags:
+      - repository
+  /repositories/{id}/scans:
+    get:
+      consumes:
+      - application/json
+      description: get task scans
+      parameters:
+      - description: Repository ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.IssueScanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+      summary: get task scans
+      tags:
+      - repository
+    post:
+      consumes:
+      - application/json
+      description: create task scan repository
+      parameters:
+      - description: Repository ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.IssueScanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/exception.AppErrorResponse'
+      summary: create scan task
+      tags:
+      - repository
+swagger: "2.0"

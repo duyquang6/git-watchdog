@@ -1,6 +1,6 @@
 apiVersion: v2
-name: wager-management-be
-description: Wager management backend application
+name: git-watchdog
+description: Git security scan tool
 
 # A chart can be either an 'application' or a 'library' chart.
 #

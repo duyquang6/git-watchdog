@@ -1,26 +1,22 @@
-https://stackoverflow.com/questions/56594857/kafka-as-a-message-queue-for-long-running-tasks
-
-Table wager {
+https://dbdiagram.io/d/61b61e818c901501c0ec72ba
+Table repositories {
   id int [pk, increment] // auto-increment
-  total_wager_value int [not null]
-  odds int [not null] // integer
-  selling_percentage int [not null]
-  selling_price decimal [not null]
-  current_selling_price decimal [not null]
-  percentage_sold uint
-  amount_sold decimal
+  name varchar [not null]
+  url varchar [not null]
   placed_at timestamp [not null]
   created_at timestamp [not null]
   updated_at timestamp
-  deleted_at timestamp
 }
 
-Table purchase {
+Table scans {
   id int [pk, increment] // auto-increment
-  wager_id int [not null, ref: > wager.id]
-  buying_price decimal [not null] // decimal
-  bought_at timestamp
+  repository_id int [not null, ref: > repositories.id]
+  status tinyint
+  queued_at timestamp
+  scanning_at timestamp
+  finished_at timestamp
+  findings json
+  note varchar
   created_at timestamp [not null]
   updated_at timestamp
-  deleted_at timestamp
 }

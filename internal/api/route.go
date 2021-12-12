@@ -8,12 +8,15 @@ import (
 	"github.com/streadway/amqp"
 	"net/http"
 
+	_ "github.com/duyquang6/git-watchdog/docs"
 	repoControllerPkg "github.com/duyquang6/git-watchdog/internal/controller/repository"
 	"github.com/duyquang6/git-watchdog/internal/database"
 	"github.com/duyquang6/git-watchdog/internal/middleware"
 	"github.com/duyquang6/git-watchdog/internal/service"
 	"github.com/duyquang6/git-watchdog/pkg/logging"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"       // swagger embed files
+	"github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 func (s *httpServer) setupDependencyAndRouter(ctx context.Context, r *gin.Engine,
@@ -31,6 +34,16 @@ func (s *httpServer) setupDependencyAndRouter(ctx context.Context, r *gin.Engine
 	initRoute(ctx, r, repoController)
 }
 
+// @title GitWatchdog API
+// @version 1.0
+// @description GitWatchdog API Spec
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name Quang Nguyen
+// @contact.url https://duyquang6.github.io
+// @contact.email nguyenduyquang06@gmail.com
+
+// @BasePath /api/v1
 func initRoute(ctx context.Context, r *gin.Engine, repoController *repoControllerPkg.Controller) {
 	r.Use(middleware.PopulateRequestID())
 	r.Use(middleware.PopulateLogger(logging.FromContext(ctx)))
@@ -47,7 +60,7 @@ func initRoute(ctx context.Context, r *gin.Engine, repoController *repoControlle
 			sub.GET("/:id/scans", repoController.HandleListScan())
 		}
 	}
-
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// Ping handler
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

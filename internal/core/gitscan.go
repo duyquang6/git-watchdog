@@ -47,6 +47,11 @@ func (g *gitScan) Scan(repoName, repoURL string) ([]Finding, error) {
 		Progress: os.Stdout,
 	})
 
+	if err != nil {
+		g.logger.Error("clone error:", err)
+		return nil, err
+	}
+
 	// Checkout latest commit source codes
 	g.logger.Info("Scanning...")
 	commits, err := gitRepo.CommitObjects()

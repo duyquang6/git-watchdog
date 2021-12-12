@@ -53,7 +53,7 @@ func realMain(ctx context.Context) error {
 }
 
 func setupDepScanConsumer(ctx context.Context, logger *zap.SugaredLogger, config *configuration.Config,
-	db database.DBFactory, rabbitMQConn *amqp.Connection) *consumer.ScanConsumer {
+	db database.DBFactory, rabbitMQConn *amqp.Connection) consumer.Consumer {
 	scanRepository := repository.NewScanRepository()
 	done := make(chan error)
 	channel := rabbitmq.NewQueueChannelFromConnection(config.RabbitMQConfig(), rabbitMQConn)

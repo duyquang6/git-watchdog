@@ -11,18 +11,17 @@ import (
 	"github.com/duyquang6/git-watchdog/pkg/customtypes"
 	"github.com/duyquang6/git-watchdog/pkg/null"
 	scanpb "github.com/duyquang6/git-watchdog/proto/v1"
-	"github.com/golang/protobuf/proto"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 	"time"
 )
 
-var _ Consumer = (*ScanConsumer)(nil)
+var _ Consumer = (*scanConsumer)(nil)
 
-type ScanConsumer struct {
+type scanConsumer struct {
 	BaseConsumer
-	logger         *zap.SugaredLogger
 	gitScan        core.GitScan
 	dbFactory      database.DBFactory
 	scanRepository repository.ScanRepository
@@ -37,23 +36,23 @@ func NewScanConsumer(
 	channel rabbitmq.IChannel,
 	tag string,
 	done chan error,
-	queueName string) *ScanConsumer {
-	return &ScanConsumer{
+	queueName string) *scanConsumer {
+	return &scanConsumer{
 		BaseConsumer: BaseConsumer{
 			conn:      conn,
 			channel:   channel,
 			tag:       tag,
 			done:      done,
 			queueName: queueName,
+			logger:    logger,
 		},
-		logger:         logger,
 		gitScan:        gitScan,
 		dbFactory:      dbFactory,
 		scanRepository: scanRepository,
 	}
 }
 
-func (c *ScanConsumer) handle(ctx context.Context, deliveries <-chan amqp.Delivery) {
+func (c *scanConsumer) handle(ctx context.Context, deliveries <-chan amqp.Delivery) {
 
 	for delivery := range deliveries {
 		d := rabbitmq.NewDelivery(delivery)
@@ -62,9 +61,13 @@ func (c *ScanConsumer) handle(ctx context.Context, deliveries <-chan amqp.Delive
 		if err != nil {
 			c.logger.Errorf("failed to handle message, "+
 				"move message tag %d to dead letter queue", d.DeliveryTag())
-			d.Nack(false, false)
+			if d.Nack(false, false) != nil {
+				c.logger.Error("cannot nack message with delivery_tag:", d.DeliveryTag())
+			}
 		} else {
-			d.Ack(false)
+			if d.Ack(false) != nil {
+				c.logger.Error("cannot ack message with delivery_tag:", d.DeliveryTag())
+			}
 		}
 	}
 
@@ -72,7 +75,7 @@ func (c *ScanConsumer) handle(ctx context.Context, deliveries <-chan amqp.Delive
 	c.done <- nil
 }
 
-func (c *ScanConsumer) processingMessage(ctx context.Context, message rabbitmq.Delivery) error {
+func (c *scanConsumer) processingMessage(ctx context.Context, message rabbitmq.IDelivery) error {
 	var (
 		tx       = c.dbFactory.GetDB()
 		msgProto scanpb.ScanTask
@@ -100,14 +103,14 @@ func (c *ScanConsumer) processingMessage(ctx context.Context, message rabbitmq.D
 
 	defer func() {
 		if err != nil {
-			err := c.updateFailed(&scan, err, tx)
+			err := c.updateFailed(scan, err, tx)
 			if err != nil {
 				c.logger.Error("failed to update failed status, error:", err)
 			}
 		}
 	}()
 
-	err = c.updateInProgress(&scan, err, tx)
+	err = c.updateInProgress(scan, tx)
 	if err != nil {
 		c.logger.Error("failed to update in-progress status, error:", err)
 		return err
@@ -120,7 +123,7 @@ func (c *ScanConsumer) processingMessage(ctx context.Context, message rabbitmq.D
 		return err
 	}
 
-	err = c.updateSuccess(&scan, err, tx, findings)
+	err = c.updateSuccess(scan, tx, findings)
 	if err != nil {
 		c.logger.Error("update success status failed, error:", err)
 		return err
@@ -130,15 +133,14 @@ func (c *ScanConsumer) processingMessage(ctx context.Context, message rabbitmq.D
 	return nil
 }
 
-func (c *ScanConsumer) updateInProgress(scan *model.Scan, err error, tx *gorm.DB) error {
+func (c *scanConsumer) updateInProgress(scan *model.Scan, tx *gorm.DB) error {
 	scan.Status = customtypes.IN_PROGRESS
 	scan.UpdatedAt = time.Now()
 	scan.ScanningAt = null.NewTime(time.Now())
-	err = c.scanRepository.Update(tx, scan)
-	return err
+	return c.scanRepository.Update(tx, scan)
 }
 
-func (c *ScanConsumer) updateFailed(scan *model.Scan, err error, tx *gorm.DB) error {
+func (c *scanConsumer) updateFailed(scan *model.Scan, err error, tx *gorm.DB) error {
 	scan.Status = customtypes.FAILURE
 	scan.UpdatedAt = time.Now()
 	scan.FinishedAt = null.NewTime(time.Now())
@@ -147,11 +149,14 @@ func (c *ScanConsumer) updateFailed(scan *model.Scan, err error, tx *gorm.DB) er
 	return err
 }
 
-func (c *ScanConsumer) updateSuccess(scan *model.Scan, err error, tx *gorm.DB, findings []core.Finding) error {
+func (c *scanConsumer) updateSuccess(scan *model.Scan, tx *gorm.DB, findings []core.Finding) error {
+	bytes, err := json.Marshal(findings)
+	if err != nil {
+		return err
+	}
 	scan.Status = customtypes.SUCCESS
 	scan.UpdatedAt = time.Now()
 	scan.FinishedAt = null.NewTime(time.Now())
-	bytes, _ := json.Marshal(findings)
 	scan.Findings = bytes
 	err = c.scanRepository.Update(tx, scan)
 	return err

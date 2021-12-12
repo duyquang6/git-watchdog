@@ -8,6 +8,18 @@ import (
 	"strconv"
 )
 
+// HandleIssueScan godoc
+// @Summary      create scan task
+// @Description  create task scan repository
+// @Tags         repository
+// @Accept       json
+// @Produce      json
+// @Param   id      path   uint     true  "Repository ID"
+//@Success      200  {object}  dto.IssueScanResponse
+//@Failure      400  {object}  exception.AppErrorResponse
+//@Failure      404  {object}  exception.AppErrorResponse
+//@Failure      500  {object}  exception.AppErrorResponse
+// @Router       /repositories/{id}/scans [post]
 func (s *Controller) HandleIssueScan() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -33,6 +45,20 @@ func (s *Controller) HandleIssueScan() gin.HandlerFunc {
 	}
 }
 
+// HandleListScan godoc
+// @Summary      get task scans
+// @Description  get task scans
+// @Tags         repository
+// @Accept       json
+// @Produce      json
+// @Param   id      path   uint     true  "Repository ID"
+// @Param   page      query   uint     true  "Page number"
+// @Param   limit      query   uint     true  "Page size"
+//@Success      200  {object}  dto.IssueScanResponse
+//@Failure      400  {object}  exception.AppErrorResponse
+//@Failure      404  {object}  exception.AppErrorResponse
+//@Failure      500  {object}  exception.AppErrorResponse
+// @Router       /repositories/{id}/scans [get]
 func (s *Controller) HandleListScan() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()

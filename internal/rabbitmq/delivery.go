@@ -2,12 +2,12 @@ package rabbitmq
 
 import "github.com/streadway/amqp"
 
-type Delivery struct {
+type delivery struct {
 	delivery amqp.Delivery
 }
 
-func NewDelivery(delivery amqp.Delivery) Delivery {
-	return Delivery{delivery}
+func NewDelivery(deli amqp.Delivery) delivery {
+	return delivery{deli}
 }
 
 type IDelivery interface {
@@ -19,26 +19,26 @@ type IDelivery interface {
 	ContentType() string
 }
 
-func (d Delivery) Ack(multiple bool) error {
+func (d delivery) Ack(multiple bool) error {
 	return d.delivery.Ack(multiple)
 }
 
-func (d Delivery) Nack(multiple, requeue bool) error {
+func (d delivery) Nack(multiple, requeue bool) error {
 	return d.delivery.Nack(multiple, requeue)
 }
 
-func (d Delivery) Body() []byte {
+func (d delivery) Body() []byte {
 	return d.delivery.Body
 }
 
-func (d Delivery) DeliveryTag() uint64 {
+func (d delivery) DeliveryTag() uint64 {
 	return d.delivery.DeliveryTag
 }
 
-func (d Delivery) ConsumerTag() string {
+func (d delivery) ConsumerTag() string {
 	return d.delivery.ConsumerTag
 }
 
-func (d Delivery) ContentType() string {
+func (d delivery) ContentType() string {
 	return d.delivery.ContentType
 }

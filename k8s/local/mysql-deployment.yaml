@@ -36,7 +36,7 @@ spec:
             - name: MYSQL_PASSWORD
               value: dev
             - name: MYSQL_DATABASE
-              value: wager-mgmt
+              value: code-challenge
           ports:
             - containerPort: 3306
               name: mysql

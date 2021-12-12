@@ -6,6 +6,7 @@ import (
 	"github.com/duyquang6/git-watchdog/internal/rabbitmq"
 	"github.com/duyquang6/git-watchdog/pkg/logging"
 	"github.com/streadway/amqp"
+	"go.uber.org/zap"
 )
 
 type BaseConsumer struct {
@@ -14,6 +15,7 @@ type BaseConsumer struct {
 	tag       string
 	done      chan error
 	queueName string
+	logger    *zap.SugaredLogger
 	Consumer
 }
 
@@ -22,7 +24,7 @@ type Consumer interface {
 	Consume(ctx context.Context) error
 }
 
-func (c *ScanConsumer) Consume(ctx context.Context) error {
+func (c *scanConsumer) Consume(ctx context.Context) error {
 	deliChan, err := c.channel.Consume(false)
 	if err != nil {
 		return err

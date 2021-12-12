@@ -152,7 +152,7 @@ func (s *repoSvc) Delete(ctx context.Context, id uint) (*dto.DeleteRepositoryRes
 	if err != nil {
 		if database.IsNotFound(err) {
 			logger.Info("delete repository failed, record not found")
-			return nil, exception.Wrap(exception.ErrRepositoryNotFound, err, "update repository failed")
+			return nil, exception.Wrap(exception.ErrRepositoryNotFound, err, "delete repository failed")
 		}
 		logger.Info("delete repository failed")
 		return nil, exception.Wrap(exception.ErrInternalServer, err, "delete repository failed")

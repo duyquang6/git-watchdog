@@ -11,6 +11,18 @@ import (
 	"strconv"
 )
 
+// HandleCreateRepository godoc
+// @Summary      create repository
+// @Description  create repository
+// @Tags         repository
+// @Accept       json
+// @Produce      json
+// @Param body body dto.CreateRepositoryRequest true "CreateRepositoryRequest"
+//@Success      200  {object}  dto.CreateRepositoryResponse
+//@Failure      400  {object}  exception.AppErrorResponse
+//@Failure      404  {object}  exception.AppErrorResponse
+//@Failure      500  {object}  exception.AppErrorResponse
+// @Router       /repositories [post]
 func (s *Controller) HandleCreateRepository() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -49,6 +61,19 @@ func (s *Controller) HandleCreateRepository() gin.HandlerFunc {
 	}
 }
 
+// HandleUpdateRepository godoc
+// @Summary      update repository
+// @Description  update repository
+// @Tags         repository
+// @Accept       json
+// @Produce      json
+// @Param   id      path   uint     true  "Repository ID"
+// @Param body body dto.UpdateRepositoryRequest true "UpdateRepositoryRequest"
+//@Success      200  {object}  dto.UpdateRepositoryResponse
+//@Failure      400  {object}  exception.AppErrorResponse
+//@Failure      404  {object}  exception.AppErrorResponse
+//@Failure      500  {object}  exception.AppErrorResponse
+// @Router       /repositories/{id} [put]
 func (s *Controller) HandleUpdateRepository() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -95,6 +120,18 @@ func (s *Controller) HandleUpdateRepository() gin.HandlerFunc {
 	}
 }
 
+// HandleGetOneRepository godoc
+// @Summary      get one repo
+// @Description  get repository by id
+// @Tags         repository
+// @Accept       json
+// @Produce      json
+// @Param   id      path   uint     true  "Repository ID"
+//@Success      200  {object}  dto.GetOneRepositoryResponse
+//@Failure      400  {object}  exception.AppErrorResponse
+//@Failure      404  {object}  exception.AppErrorResponse
+//@Failure      500  {object}  exception.AppErrorResponse
+// @Router       /repositories/{id} [get]
 func (s *Controller) HandleGetOneRepository() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
@@ -121,6 +158,18 @@ func (s *Controller) HandleGetOneRepository() gin.HandlerFunc {
 	}
 }
 
+// HandleDelete godoc
+// @Summary      delete repository
+// @Description  delete repo by id
+// @Tags         repository
+// @Accept       json
+// @Produce      json
+// @Param   id      path   uint     true  "Repository ID"
+//@Success      200  {object}  dto.DeleteRepositoryResponse
+//@Failure      400  {object}  exception.AppErrorResponse
+//@Failure      404  {object}  exception.AppErrorResponse
+//@Failure      500  {object}  exception.AppErrorResponse
+// @Router       /repositories/{id} [delete]
 func (s *Controller) HandleDelete() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()

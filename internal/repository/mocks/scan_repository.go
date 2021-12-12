@@ -44,14 +44,16 @@ func (_m *ScanRepository) Delete(tx *gorm.DB, id uint) error {
 }
 
 // GetByID provides a mock function with given fields: tx, id
-func (_m *ScanRepository) GetByID(tx *gorm.DB, id uint) (model.Scan, error) {
+func (_m *ScanRepository) GetByID(tx *gorm.DB, id uint) (*model.Scan, error) {
 	ret := _m.Called(tx, id)
 
-	var r0 model.Scan
-	if rf, ok := ret.Get(0).(func(*gorm.DB, uint) model.Scan); ok {
+	var r0 *model.Scan
+	if rf, ok := ret.Get(0).(func(*gorm.DB, uint) *model.Scan); ok {
 		r0 = rf(tx, id)
 	} else {
-		r0 = ret.Get(0).(model.Scan)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Scan)
+		}
 	}
 
 	var r1 error

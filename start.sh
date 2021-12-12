@@ -24,17 +24,16 @@ start() {
 bootstrap() {
   echo "----------- SETUP DOCKER -------------"
   make docker.local.stop
-  make build.docker.image
   make docker.local.start
 
   echo "Wait 30 secs for db start complete & run migration"
   sleep 30
   echo "----------- DONE -------------"
-  echo "Try hit endpoint http://0.0.0.0:8080/wagers !"
+  echo "Tryout api spec at http://0.0.0.0:8080/swagger/index.html !"
   echo "Run make docker.local.stop to stop docker instances"
 }
 
-# Bootup docker & run integration test
+# Boot up docker & run integration test
 integration() {
   echo "----------- SETUP DOCKER -------------"
   make docker.integration.stop

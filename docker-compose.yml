@@ -1,17 +1,20 @@
 version: '3.8'
-x-wager-common:
-  &wager-common
-  image: ${WAGER_APP_IMAGE_NAME:-wager-management-be:local}
-  # build: .
+x-app-common:
+  &app-common
+  image: ${APP_IMAGE_NAME:-git-watchdog:local}
+  build:
+    context: .
+    dockerfile: Dockerfile
   environment:
-    &wager-common-env
+    &app-common-env
     LOG_MODE: production
     LOG_LEVEL: INFO
     GIN_MODE: release
-    DB_NAME: wager-mgmt
+    DB_NAME: code-challenge
     DB_USER: dev
     DB_PASSWORD: dev
     DB_ADDRESS: mydb:3306
+    AMQP_SERVER_URL: amqp://guest:guest@rabbitmq:5672/
 
 services:
   mydb:
@@ -33,20 +36,27 @@ services:
       - '5672:5672'
       - '15672:15672'
 
-  wager-app:
-    <<: *wager-common
+  app:
+    <<: *app-common
     restart: always
     depends_on:
     - mydb
     ports:
     - "8080:8080"
 
-  wager-migration:
-    <<: *wager-common
+  scan-consumer:
+    <<: *app-common
+    restart: always
+    entrypoint: ./scanworker
+    depends_on:
+      - mydb
+
+  app-migration:
+    <<: *app-common
     restart: on-failure
     entrypoint: ./migrate
     depends_on:
-      - wager-app
+      - app
 
 volumes:
   dbstorage:

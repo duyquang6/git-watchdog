@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
-	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -24,6 +23,9 @@ func NewFromEnv(ctx context.Context, cfg *Config) (*DB, error) {
 		return nil, fmt.Errorf("failed to create connection pool: %v", err)
 	}
 	sqlDb, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create connection pool: %v", err)
+	}
 	sqlDb.SetMaxOpenConns(cfg.PoolMaxConnections)
 	sqlDb.SetMaxIdleConns(cfg.PoolMaxIdleConnections)
 	_db := &DB{db: db}
@@ -68,51 +70,4 @@ func dbToMysqlDSN(cfg *Config) string {
 		mySqlConfig.TLSConfig = tlsConfigName
 	}
 	return mySqlConfig.FormatDSN()
-}
-
-// dbToDSN builds a connection string suitable for the pgx Postgres driver, using
-// the values of vars.
-func dbToDSN(cfg *Config) string {
-	vals := dbValues(cfg)
-	p := make([]string, 0, len(vals))
-	for k, v := range vals {
-		p = append(p, fmt.Sprintf("%s=%s", k, v))
-	}
-	fmt.Println(strings.Join(p, " "))
-	return strings.Join(p, " ")
-}
-
-func setIfNotEmpty(m map[string]string, key, val string) {
-	if val != "" {
-		m[key] = val
-	}
-}
-
-func setIfPositive(m map[string]string, key string, val int) {
-	if val > 0 {
-		m[key] = fmt.Sprintf("%d", val)
-	}
-}
-
-func setIfPositiveDuration(m map[string]string, key string, d time.Duration) {
-	if d > 0 {
-		m[key] = d.String()
-	}
-}
-
-func dbValues(cfg *Config) map[string]string {
-	p := map[string]string{}
-	hostAndPort := strings.Split(cfg.Address, ":")
-	setIfNotEmpty(p, "dbname", cfg.Name)
-	setIfNotEmpty(p, "user", cfg.User)
-	setIfNotEmpty(p, "host", hostAndPort[0])
-	setIfNotEmpty(p, "port", hostAndPort[1])
-	setIfNotEmpty(p, "sslmode", cfg.SSLMode)
-	setIfPositive(p, "connect_timeout", cfg.ConnectionTimeout)
-	setIfNotEmpty(p, "password", cfg.Password)
-	setIfNotEmpty(p, "sslcert", cfg.SSLCertPath)
-	setIfNotEmpty(p, "sslkey", cfg.SSLKeyPath)
-	setIfNotEmpty(p, "sslrootcert", cfg.SSLRootCertPath)
-	//setIfNotEmpty(p, "pool_max_conns", fmt.Sprint(cfg.PoolMaxConnections))
-	return p
 }

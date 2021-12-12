@@ -3,12 +3,13 @@ GOTEST=$(GOCMD) test
 GOVET=$(GOCMD) vet
 EXPORT_RESULT ?= false
 GO_TOOLS = github.com/vektra/mockery/v2/.../
-ENV_BUILD_LOCAL_DOCKER=WAGER_APP_IMAGE_NAME=wager-management-be:local
+ENV_BUILD_LOCAL_DOCKER=APP_IMAGE_NAME=git-watchdog:local
 ENV_INTEGRATION_TEST=\
   DB_ADDRESS=0.0.0.0:3307 \
   DB_PASSWORD=test \
   DB_USER=test \
-  DB_NAME=wager-mgmt-integration
+  DB_NAME=code-challenge
+
 BUF_VERSION:=0.55.0
 .PHONY: install install-go-tools install-osx lint all test vendor coverage
 
@@ -48,22 +49,28 @@ docker.integration.stop:
 	docker-compose -f docker-compose-it.yml down -v;
 
 docker.local.start:
-	$(WAGER_APP_IMAGE_NAME) docker-compose -f docker-compose.yml up -d --remove-orphans;
+	$(ENV_BUILD_LOCAL_DOCKER) docker-compose -f docker-compose.yml up -d --build --remove-orphans;
 
 docker.local.stop:
-	$(WAGER_APP_IMAGE_NAME) docker-compose -f docker-compose.yml down -v;
+	$(ENV_BUILD_LOCAL_DOCKER) docker-compose -f docker-compose.yml down -v;
 
 build:
 	@./scripts/app-build.sh
 
 build.docker.image:
-	@docker build -t wager-management-be:local .
+	@docker build -t git-watchdog:local .
 
 migrate: 
 	@./scripts/migrate.sh
 
 build.migrate:
 	@./scripts/migrate-build.sh
+
+build.consumer:
+	@./scripts/scanworker-build.sh
+
+build.scanworker:
+	@./scripts/scanworker-build.sh
 
 lint-go: ## Linting go files
 	@golangci-lint run --allow-parallel-runners

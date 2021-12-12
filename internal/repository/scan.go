@@ -14,7 +14,7 @@ type ScanRepository interface {
 	Update(tx *gorm.DB, scan *model.Scan) error
 	Delete(tx *gorm.DB, id uint) error
 	List(tx *gorm.DB, repoID null.Uint, offset, limit uint) ([]model.Scan, uint, error)
-	GetByID(tx *gorm.DB, id uint) (model.Scan, error)
+	GetByID(tx *gorm.DB, id uint) (*model.Scan, error)
 }
 
 // NewScanRepository create ScanRepository concrete object
@@ -41,7 +41,7 @@ func (s *scanRepo) Update(tx *gorm.DB, data *model.Scan) error {
 func (s *scanRepo) List(tx *gorm.DB, repoID null.Uint, offset, limit uint) ([]model.Scan, uint, error) {
 	var scans []model.Scan
 	count := int64(0)
-	res := tx.Preload("Repository").Count(&count)
+	res := tx.Model(&model.Scan{}).Preload("Repository").Count(&count)
 	if repoID.Valid {
 		res = res.Where("repository_id = ?", repoID.Uint)
 	}
@@ -54,7 +54,7 @@ func (s *scanRepo) Delete(tx *gorm.DB, id uint) error {
 	return tx.Delete(&model.Scan{}, id).Error
 }
 
-func (s *scanRepo) GetByID(tx *gorm.DB, id uint) (model.Scan, error) {
+func (s *scanRepo) GetByID(tx *gorm.DB, id uint) (*model.Scan, error) {
 	var data model.Scan
-	return data, tx.Preload("Repository").First(&data, id).Error
+	return &data, tx.Preload("Repository").First(&data, id).Error
 }
