@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package integration
 
 import (
@@ -153,7 +156,7 @@ func (p *MySQLRepositoryTestSuite) TestMySqlScanRepository_List() {
 		err = scanRepo.Create(tx, &scanModel)
 		p.Assert().NoError(err)
 
-		res, err := scanRepo.List(tx, null.NewUint(data.ID), 0, 10)
+		res, _, err := scanRepo.List(tx, null.NewUint(data.ID), 0, 10)
 		p.Assert().NoError(err)
 		p.Assert().Equal(2, len(res))
 	})

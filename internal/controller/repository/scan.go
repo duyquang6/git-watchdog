@@ -37,15 +37,25 @@ func (s *Controller) HandleListScan() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
 
-		page, err := strconv.ParseUint(c.Param("page"), 10, 64)
+		page, err := strconv.ParseUint(c.Query("page"), 10, 64)
 		if err != nil {
 			appErr := exception.Wrap(http.StatusBadRequest, err, "parse page field failed").(exception.AppError)
 			c.JSON(appErr.GetHTTPStatusCode(), appErr.ToAppErrorResponse())
 			return
 		}
-		limit, err := strconv.ParseUint(c.Param("limit"), 10, 64)
+		if page == 0 {
+			appErr := exception.Wrap(http.StatusBadRequest, err, "page field must be larger than 0").(exception.AppError)
+			c.JSON(appErr.GetHTTPStatusCode(), appErr.ToAppErrorResponse())
+			return
+		}
+		limit, err := strconv.ParseUint(c.Query("limit"), 10, 64)
 		if err != nil {
 			appErr := exception.Wrap(http.StatusBadRequest, err, "parse limit field failed").(exception.AppError)
+			c.JSON(appErr.GetHTTPStatusCode(), appErr.ToAppErrorResponse())
+			return
+		}
+		if limit == 0 {
+			appErr := exception.Wrap(http.StatusBadRequest, err, "limit field must be larger than 0").(exception.AppError)
 			c.JSON(appErr.GetHTTPStatusCode(), appErr.ToAppErrorResponse())
 			return
 		}

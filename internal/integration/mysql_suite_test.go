@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package integration
 
 import (
@@ -14,8 +17,6 @@ type MySQLRepositoryTestSuite struct {
 	env    *serverenv.ServerEnv
 	config database.Config
 	suite.Suite
-	////go:build integration
-	////+build integration
 }
 
 func (p *MySQLRepositoryTestSuite) SetupSuite() {
