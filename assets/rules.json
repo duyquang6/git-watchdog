@@ -1,0 +1,30 @@
+[
+  {
+    "id": "G401",
+    "description": "SSH private key disclosure",
+    "regex": "-----BEGIN OPENSSH PRIVATE KEY-----",
+    "severity": "HIGH",
+    "type": "sast"
+  },
+  {
+    "id": "G402",
+    "description": "RSA public key disclosure",
+    "regex": "-----BEGIN RSA PUBLIC KEY-----",
+    "severity": "MEDIUM",
+    "type": "sast"
+  },
+  {
+    "id": "G403",
+    "description": "Private key disclosure",
+    "regex": "private_key",
+    "severity": "HIGH",
+    "type": "sast"
+  },
+  {
+    "id": "G404",
+    "description": "Public key disclosure",
+    "regex": "public_key",
+    "severity": "MEDIUM",
+    "type": "sast"
+  }
+]

@@ -1,0 +1,11 @@
+syntax="proto3";
+
+package scanpb.v1;
+
+// Defines the import path that should be used to import the generated package,
+// and the package name.
+option go_package = "github.com/duyquang6/git-watchdog/proto/v1;scanpb";
+
+message ScanTask {
+    int64 id = 1;
+}

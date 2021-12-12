@@ -1,0 +1,28 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata:
+  name: wager-management-be
+test:
+  - image: wager-management-be
+    custom:
+      - command: make test.unit
+        timeoutSeconds: 60    
+        dependencies:
+          paths:
+          -  "**/*_test.go"            
+build:
+  tagPolicy:
+    gitCommit: {}
+  artifacts:
+  - image: wager-management-be
+    docker:
+      dockerfile: Dockerfile    
+deploy:
+  helm:
+    releases:
+    - name: local-helm
+      chartPath: k8s
+      artifactOverrides:
+        image: wager-management-be
+      imageStrategy:
+        helm: {}
