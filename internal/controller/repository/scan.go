@@ -52,8 +52,8 @@ func (s *Controller) HandleIssueScan() gin.HandlerFunc {
 // @Accept       json
 // @Produce      json
 // @Param   id      path   uint     true  "Repository ID"
-// @Param   page      query   uint     true  "Page number"
-// @Param   limit      query   uint     true  "Page size"
+// @Param   page      query   uint     true  "Page number" default(1)
+// @Param   limit      query   uint     true  "Page size" default(10)
 //@Success      200  {object}  dto.IssueScanResponse
 //@Failure      400  {object}  exception.AppErrorResponse
 //@Failure      404  {object}  exception.AppErrorResponse

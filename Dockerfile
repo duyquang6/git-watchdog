@@ -3,11 +3,13 @@ RUN apk --no-cache add build-base git mercurial gcc bash
 WORKDIR /app
 COPY go.mod .
 COPY go.sum .
+RUN go get -u github.com/swaggo/swag/cmd/swag
 RUN go mod download
 COPY . .
 RUN make build
 RUN make build.migrate
 RUN make build.consumer
+RUN swag init -g internal/api/route.go
 
 FROM alpine
 WORKDIR /app

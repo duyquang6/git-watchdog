@@ -187,7 +187,8 @@ paths:
       - application/json
       description: update repository
       parameters:
-      - description: Repository ID
+      - default: 1
+        description: Repository ID
         in: path
         name: id
         required: true
@@ -231,12 +232,14 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Page number
+      - default: 1
+        description: Page number
         in: query
         name: page
         required: true
         type: integer
-      - description: Page size
+      - default: 10
+        description: Page size
         in: query
         name: limit
         required: true

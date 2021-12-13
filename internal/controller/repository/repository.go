@@ -67,7 +67,7 @@ func (s *Controller) HandleCreateRepository() gin.HandlerFunc {
 // @Tags         repository
 // @Accept       json
 // @Produce      json
-// @Param   id      path   uint     true  "Repository ID"
+// @Param   id      path   uint     true  "Repository ID" default(1)
 // @Param body body dto.UpdateRepositoryRequest true "UpdateRepositoryRequest"
 //@Success      200  {object}  dto.UpdateRepositoryResponse
 //@Failure      400  {object}  exception.AppErrorResponse

@@ -144,6 +144,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Repository ID",
                         "name": "id",
                         "in": "path",
@@ -258,6 +259,7 @@ var doc = `{
                     },
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page number",
                         "name": "page",
                         "in": "query",
@@ -265,6 +267,7 @@ var doc = `{
                     },
                     {
                         "type": "integer",
+                        "default": 10,
                         "description": "Page size",
                         "name": "limit",
                         "in": "query",

@@ -129,6 +129,7 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Repository ID",
                         "name": "id",
                         "in": "path",
@@ -243,6 +244,7 @@
                     },
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page number",
                         "name": "page",
                         "in": "query",
@@ -250,6 +252,7 @@
                     },
                     {
                         "type": "integer",
+                        "default": 10,
                         "description": "Page size",
                         "name": "limit",
                         "in": "query",
