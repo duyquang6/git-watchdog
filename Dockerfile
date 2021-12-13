@@ -3,8 +3,8 @@ RUN apk --no-cache add build-base git mercurial gcc bash
 WORKDIR /app
 COPY go.mod .
 COPY go.sum .
-RUN go get -u github.com/swaggo/swag/cmd/swag
 RUN go mod download
+RUN go get -u github.com/swaggo/swag/cmd/swag
 COPY . .
 RUN make build
 RUN make build.migrate

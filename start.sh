@@ -27,10 +27,22 @@ bootstrap() {
   make docker.local.start
 
   echo "Wait 30 secs for db start complete & run migration"
-  sleep 30
+  declare -ir MAX_SECONDS=30
+  declare -ir TIMEOUT=$SECONDS+$MAX_SECONDS
+  while (( $SECONDS < $TIMEOUT )); do
+      if [ $(healthcheck) == "200" ]; then
+          break
+      fi
+      echo "starting ...."
+      sleep 3
+  done
   echo "----------- DONE -------------"
   echo "Tryout api spec at http://0.0.0.0:8080/swagger/index.html !"
   echo "Run make docker.local.stop to stop docker instances"
+}
+
+healthcheck(){
+  curl -s -o /dev/null --head -w "%{http_code}" -X GET "http://0.0.0.0:8080/ping"
 }
 
 # Boot up docker & run integration test
@@ -42,7 +54,7 @@ integration() {
   echo "Wait 30 secs for db start complete"
   sleep 30
   echo "----------- INTEGRATION TEST -------------"
-  make test.integration
+  RULE_FILE_PATH=$(pwd)/assets/rules.json make test.integration
 
   echo "----------- CLEAN UP -------------"
   make docker.integration.stop
