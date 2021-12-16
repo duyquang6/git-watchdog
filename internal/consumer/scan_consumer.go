@@ -54,29 +54,6 @@ func NewScanConsumer(
 	return scanConsumer
 }
 
-func (c *ScanConsumer) handle(ctx context.Context, deliveries <-chan amqp.Delivery) {
-
-	for delivery := range deliveries {
-		d := rabbitmq.NewDelivery(delivery)
-
-		err := c.processingMessage(ctx, d)
-		if err != nil {
-			c.logger.Errorf("failed to handle message, "+
-				"move message tag %d to dead letter queue", d.DeliveryTag())
-			if d.Nack(false, false) != nil {
-				c.logger.Error("cannot nack message with delivery_tag:", d.DeliveryTag())
-			}
-		} else {
-			if d.Ack(false) != nil {
-				c.logger.Error("cannot ack message with delivery_tag:", d.DeliveryTag())
-			}
-		}
-	}
-
-	c.logger.Info("handle: deliveries channel closed")
-	c.done <- nil
-}
-
 func (c *ScanConsumer) processingMessage(ctx context.Context, message rabbitmq.IDelivery) error {
 	var (
 		tx       = c.dbFactory.GetDB()

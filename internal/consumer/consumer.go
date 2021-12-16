@@ -20,7 +20,7 @@ type BaseConsumer struct {
 }
 
 type Consumer interface {
-	handle(ctx context.Context, deliveries <-chan amqp.Delivery)
+	processingMessage(ctx context.Context, message rabbitmq.IDelivery) error
 }
 
 func (c *BaseConsumer) Consume(ctx context.Context) error {
@@ -28,8 +28,29 @@ func (c *BaseConsumer) Consume(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.consumer.handle(ctx, deliChan)
+	c.handle(ctx, deliChan)
 	return nil
+}
+
+func (c *BaseConsumer) handle(ctx context.Context, deliveries <-chan amqp.Delivery) {
+	for delivery := range deliveries {
+		d := rabbitmq.NewDelivery(delivery)
+		err := c.consumer.processingMessage(ctx, d)
+		if err != nil {
+			c.logger.Errorf("failed to handle message, "+
+				"move message tag %d to dead letter queue", d.DeliveryTag())
+			if d.Nack(false, false) != nil {
+				c.logger.Error("cannot nack message with delivery_tag:", d.DeliveryTag())
+			}
+		} else {
+			if d.Ack(false) != nil {
+				c.logger.Error("cannot ack message with delivery_tag:", d.DeliveryTag())
+			}
+		}
+	}
+
+	c.logger.Info("handle: deliveries channel closed")
+	c.done <- nil
 }
 
 func (c *BaseConsumer) Close(ctx context.Context) error {
