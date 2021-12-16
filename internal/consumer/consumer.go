@@ -16,20 +16,19 @@ type BaseConsumer struct {
 	done      chan error
 	queueName string
 	logger    *zap.SugaredLogger
-	Consumer
+	consumer  Consumer
 }
 
 type Consumer interface {
 	handle(ctx context.Context, deliveries <-chan amqp.Delivery)
-	Consume(ctx context.Context) error
 }
 
-func (c *scanConsumer) Consume(ctx context.Context) error {
+func (c *BaseConsumer) Consume(ctx context.Context) error {
 	deliChan, err := c.channel.Consume(false)
 	if err != nil {
 		return err
 	}
-	c.handle(ctx, deliChan)
+	c.consumer.handle(ctx, deliChan)
 	return nil
 }
 

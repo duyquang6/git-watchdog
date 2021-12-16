@@ -162,7 +162,7 @@ func Test_scanConsumer_processingMessage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &scanConsumer{
+			s := &ScanConsumer{
 				BaseConsumer:   tt.fields.BaseConsumer,
 				gitScan:        tt.fields.gitScan,
 				dbFactory:      tt.fields.dbFactory,
@@ -170,7 +170,7 @@ func Test_scanConsumer_processingMessage(t *testing.T) {
 			}
 			err := s.processingMessage(tt.args.ctx, tt.args.message)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("scanConsumer.processingMessage() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ScanConsumer.processingMessage() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})
